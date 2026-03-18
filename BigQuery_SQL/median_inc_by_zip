@@ -1,0 +1,14 @@
+-- The product of this query is saved as a view in BigQuery and can be modified and re-run in the details tab of the saved view.
+
+SELECT 
+    hhi.year,
+    z.ZIP,
+    ROUND(AVG(hhi.Median_H_Inc),2) AS avg_zip_median_income
+FROM `DFW_5YR_Housing_Data.median_hh_inc` hhi
+LEFT JOIN `DFW_5YR_Housing_Data.zip_to_tract` z
+    ON hhi.TRACT_ID = z.TRACT
+GROUP BY 
+    hhi.year,
+    z.ZIP
+ORDER BY 
+    hhi.year;
