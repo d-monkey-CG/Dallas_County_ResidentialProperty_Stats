@@ -1,1 +1,35 @@
+-- File output and script saved in BigQuery as a view and as a classic query
+
+SELECT m.activity_year AS year, z.ZIP, COUNT(*) AS loan_count, 
+
+-- Loan Amount 
+ROUND(AVG(m.loan_amount),0) AS avg_loan_amount, 
+APPROX_QUANTILES(m.loan_amount, 2)[OFFSET(1)] AS median_loan_amount, 
+
+-- Loan to Value 
+ROUND(AVG(m.loan_to_value_ratio),0) AS avg_ltv, 
+APPROX_QUANTILES(m.loan_to_value_ratio, 2)[OFFSET(1)] AS median_ltv, 
+
+-- Interest Rate 
+ROUND(AVG(m.interest_rate),2) AS avg_interest_rate, 
+APPROX_QUANTILES(m.interest_rate, 2)[OFFSET(1)] AS median_interest_rate, 
+
+-- Property Value 
+ROUND(AVG(m.property_value),0) AS avg_property_value, 
+APPROX_QUANTILES(m.property_value, 2)[OFFSET(1)] AS median_property_value,
+
+-- Income: originally in thousands, modified for comparison to census values 
+ROUND(AVG(m.income * 1000),0) AS avg_income, 
+APPROX_QUANTILES(m.income *1000, 2)[OFFSET(1)] AS median_income, 
+
+-- Debt to Income 
+ROUND(AVG(m.debt_to_income_ratio),0) AS avg_dti, 
+APPROX_QUANTILES(m.debt_to_income_ratio, 2)[OFFSET(1)] AS median_dti,  
+
+FROM `DFW_5YR_Housing_Data.mortgage_data` m 
+LEFT JOIN DFW_5YR_Housing_Data.zip_to_tract z ON m.census_tract = z.TRACT
+
+-- action_taken code 1 means that the loan was originated (the sale went through)
+WHERE action_taken = 1
+GROUP BY year, ZIP
 
