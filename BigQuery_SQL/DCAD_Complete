@@ -1,0 +1,34 @@
+-- The product of this CTE and the code are saved as a view and a classic query (respectively) in BigQuery. 
+
+WITH dcad_data AS (
+  SELECT 
+    APPRAISAL_YR, 
+    PROPERTY_ZIPCODE, 
+    ROUND(AVG(TOT_VAL), 0) AS avg_appr_val, 
+    APPROX_QUANTILES(TOT_VAL, 2)[OFFSET(1)] AS median_appr_val
+  FROM `DFW_5YR_Housing_Data.residential_prop`
+  GROUP BY APPRAISAL_YR, PROPERTY_ZIPCODE
+)
+
+SELECT 
+  dd.APPRAISAL_YR, 
+  dd.PROPERTY_ZIPCODE, 
+  dd.avg_appr_val, 
+  dd.median_appr_val, 
+  miz.avg_zip_median_income,
+  mdz.avg_income, 
+  mdz.median_income, 
+  mdz.avg_interest_rate, 
+  mdz.median_interest_rate, 
+  mdz.avg_property_value, 
+  mdz.median_property_value, 
+  mdz.loan_count, 
+  mdz.avg_ltv, 
+  mdz.median_ltv
+FROM dcad_data dd
+LEFT JOIN `DFW_5YR_Housing_Data.median_inc_by_zip` miz
+  ON dd.APPRAISAL_YR = miz.year 
+ AND dd.PROPERTY_ZIPCODE = miz.ZIP
+LEFT JOIN `DFW_5YR_Housing_Data.mortgage_data_byzip` mdz 
+  ON dd.APPRAISAL_YR = mdz.year 
+ AND dd.PROPERTY_ZIPCODE = mdz.ZIP;
