@@ -1,5 +1,3 @@
--- File output and script saved in BigQuery as a view and as a classic query
-
 SELECT m.activity_year AS year, z.ZIP, COUNT(*) AS loan_count, 
 
 -- Loan Amount 
@@ -27,9 +25,10 @@ ROUND(AVG(m.debt_to_income_ratio),0) AS avg_dti,
 APPROX_QUANTILES(m.debt_to_income_ratio, 2)[OFFSET(1)] AS median_dti,  
 
 FROM `DFW_5YR_Housing_Data.mortgage_data` m 
-LEFT JOIN DFW_5YR_Housing_Data.zip_to_tract z ON m.census_tract = z.TRACT
+LEFT JOIN DFW_5YR_Housing_Data.zip_to_tract z 
+  ON m.census_tract = z.TRACT
+  AND m.activity_year = z.Year
 
 -- action_taken code 1 means that the loan was originated (the sale went through)
 WHERE action_taken = 1
 GROUP BY year, ZIP
-
