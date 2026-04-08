@@ -7,6 +7,7 @@ SELECT
 FROM `DFW_5YR_Housing_Data.median_hh_inc` hhi
 LEFT JOIN `DFW_5YR_Housing_Data.zip_to_tract` z
     ON hhi.TRACT_ID = z.TRACT
+    AND hhi.year = z.Year
 GROUP BY 
     hhi.year,
     z.ZIP
