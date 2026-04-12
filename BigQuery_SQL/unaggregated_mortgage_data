@@ -1,0 +1,23 @@
+WITH unaggregated_md AS (
+  SELECT 
+    md.*,
+    z.ZIP
+  FROM `DFW_5YR_Housing_Data.mortgage_data` md
+  LEFT JOIN `DFW_5YR_Housing_Data.zip_to_tract` z
+    ON md.census_tract = z.TRACT
+    AND md.activity_year = z.Year
+  WHERE md.action_taken = 1
+),
+
+dcad_zip AS (
+  SELECT DISTINCT PROPERTY_ZIPCODE
+  FROM `DFW_5YR_Housing_Data.residential_prop`
+)
+
+SELECT umd.activity_year, umd.loan_amount, umd.property_value, umd.income, umd. ZIP
+FROM unaggregated_md umd
+WHERE EXISTS (
+  SELECT 1
+  FROM dcad_zip dz
+  WHERE umd.ZIP = dz.PROPERTY_ZIPCODE
+);
